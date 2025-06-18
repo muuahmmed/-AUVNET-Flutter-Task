@@ -1,0 +1,98 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../../../../../core/utils/cache/cache_helper.dart';
+import 'states.dart';
+
+class LoginCubit extends Cubit<LoginStates> {
+  LoginCubit() : super(LoginInitialState());
+
+  static LoginCubit get(context) => BlocProvider.of<LoginCubit>(context);
+
+  final SupabaseClient client = Supabase.instance.client;
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId: '991563572060-0rmet9k2lb6okris3s8okc4210ar4crv.apps.googleusercontent.com',
+  );
+
+  Future<void> login({required String email, required String password}) async {
+    emit(LoginLoadingState());
+    try {
+      final response = await client.auth.signInWithPassword(
+        email: email,
+        password: password,
+      );
+
+      if (response.user != null) {
+        await CacheHelper.saveData(key: 'onBoarding', value: true);
+        emit(LoginSuccessState());
+      } else {
+        emit(LoginErrorState('Authentication failed'));
+      }
+    } on AuthException catch (e) {
+      final errorMessage = e.message.contains('Invalid login credentials')
+          ? 'Invalid email or password'
+          : e.message;
+      emit(LoginErrorState(errorMessage));
+    } catch (e) {
+      emit(LoginErrorState('An unexpected error occurred'));
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      await _googleSignIn.signOut(); // Sign out from Google too
+      await client.auth.signOut();
+      await CacheHelper.removeData(key: 'onBoarding');
+      emit(LogoutSuccessState());
+    } catch (e) {
+      emit(LoginErrorState('Logout failed: ${e.toString()}'));
+    }
+  }
+
+  Future<void> forgotPassword({required String email}) async {
+    emit(ForgotPasswordLoadingState());
+    try {
+      await client.auth.resetPasswordForEmail(email);
+      emit(ForgotPasswordSuccessState(email));
+    } on AuthException catch (e) {
+      emit(ForgotPasswordErrorState(e.message));
+    } catch (e) {
+      emit(ForgotPasswordErrorState('Password reset failed'));
+    }
+  }
+
+  Future<void> signInWithGoogle() async {
+    emit(LoginLoadingState());
+    try {
+      final googleUser = await _googleSignIn.signIn();
+      if (googleUser == null) {
+        emit(LoginErrorState('Google sign in cancelled'));
+        return;
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final accessToken = googleAuth.accessToken;
+      final idToken = googleAuth.idToken;
+
+      if (accessToken == null || idToken == null) {
+        emit(LoginErrorState('Missing Google authentication tokens'));
+        return;
+      }
+
+      final response = await client.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+
+      if (response.user != null) {
+        await CacheHelper.saveData(key: 'onBoarding', value: true);
+        emit(LoginSuccessState());
+      } else {
+        emit(LoginErrorState('Google authentication failed'));
+      }
+    } catch (e) {
+      emit(LoginErrorState('Google sign in failed: ${e.toString()}'));
+    }
+  }
+}
