@@ -7,6 +7,7 @@ import 'core/utils/observer/bloc_observer.dart';
 import 'features/auth/presentaion/auth/login/login_cubit/cubit.dart';
 import 'features/auth/presentaion/auth/register/register_bloc/cubit.dart';
 import 'features/home/presentaion/home_cubit/home_cubit.dart';
+import 'features/onboarding/onboarding.dart';
 import 'features/splash/splash_screen.dart'; // Import your splash screen
 
 void main() async {
@@ -40,7 +41,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: const LogoScreen(), // Always start with splash screen
+        home: const OnBoardingScreen(), // Always start with splash screen
       ),
     );
   }

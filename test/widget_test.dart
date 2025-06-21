@@ -1,4 +1,3 @@
-import 'package:auvnet/features/auth/presentaion/auth/login/login_screen/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:auvnet/main.dart';
@@ -6,7 +5,7 @@ import 'package:auvnet/main.dart';
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp(startWidget: LoginScreen(),));
+    await tester.pumpWidget(MyApp());
 
     // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);

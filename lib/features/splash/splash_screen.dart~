@@ -1,0 +1,86 @@
+import 'dart:math';
+import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/utils/cache/cache_helper.dart';
+import '../auth/presentaion/auth/login/login_screen/login_screen.dart';
+import '../home/presentaion/screens/main_home.dart';
+import '../onboarding/onboarding.dart';
+
+class LogoScreen extends StatefulWidget {
+  const LogoScreen({super.key});
+
+  @override
+  State<LogoScreen> createState() => _LogoScreenState();
+}
+
+class _LogoScreenState extends State<LogoScreen> {
+  @override
+  void initState() {
+    super.initState();
+    _navigateToNextScreen();
+  }
+
+  Future<void> _navigateToNextScreen() async {
+    await Future.delayed(const Duration(seconds: 3)); // Splash duration
+
+    final currentUser = Supabase.instance.client.auth.currentUser;
+    final onBoarding = CacheHelper.getData(key: 'onBoarding') ?? false;
+
+    Widget nextScreen;
+
+    if (currentUser != null && onBoarding) {
+      nextScreen = const MainHomeScreen();
+    } else if (onBoarding) {
+      nextScreen = const LoginScreen();
+    } else {
+      nextScreen = const OnBoardingScreen();
+    }
+
+    if (mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => nextScreen),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Stack(
+        children: [
+          // Right-positioned ellipse (flipped horizontally)
+          Positioned(
+            left: size.width * 0.1, // 5% from left
+            top: size.height * 0.23, // 25% from top
+            child: Transform(
+              alignment: Alignment.center,
+              transform: Matrix4.rotationX(pi), // Horizontal flip
+              child: Image.asset(
+                'assets/splash_screen/Ellipse 153.png',
+                width: 330,
+                height: 335,
+                fit: BoxFit.contain,
+              ),
+            ),
+          ),
+
+          // Centered main logo
+          Positioned(
+            left: size.width * 0.05, // 5% from left
+            top: size.height * 0.25, // 25% from top
+            child: Image.asset(
+              'assets/splash_screen/nawel.png',
+              width: 335,
+              height: 335,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
