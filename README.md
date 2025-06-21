@@ -1,7 +1,7 @@
 # AUVNET Flutter Internship Assessment
 
 ## 🧩 Features
-- Firebase Authentication (Email/Password)
+- Supabase Authentication (Email/Password)
 - Home with services & categories
 - Local storage using Hive
 - BLoC pattern for state management
