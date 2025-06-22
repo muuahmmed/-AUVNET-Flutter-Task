@@ -1,83 +1,151 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:line_icons/line_icons.dart';
-
 import '../home_cubit/home_cubit.dart';
 import '../home_cubit/home_states.dart';
 
-class MainHomeScreen extends StatelessWidget {
+class MainHomeScreen extends StatefulWidget {
   const MainHomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    const Color backgroundColor = Color(0xFFF5F6FA);
-    const Color primaryColor = Color(0xFF6C63FF); // Purple-Blue
-    const Color activeTabColor = Color(0xFFDDE6FF); // Soft tab highlight
+  _MainHomeScreenState createState() => _MainHomeScreenState();
+}
 
-    return BlocProvider(
-      create: (context) => HomeShopCubit()..resetIndex(),
-      child: BlocConsumer<HomeShopCubit, HomeShopStates>(
-        listener: (context, state) {},
-        builder: (context, state) {
-          var cubit = HomeShopCubit.get(context);
-          return Scaffold(
-            backgroundColor: backgroundColor,
-            body: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              switchInCurve: Curves.easeIn,
-              switchOutCurve: Curves.easeOut,
+class _MainHomeScreenState extends State<MainHomeScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<HomeShopCubit, HomeShopStates>(
+      listener: (BuildContext context, state) {},
+      builder: (BuildContext context, state) {
+        var cubit = HomeShopCubit.get(context);
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 600),
+            switchInCurve: Curves.easeInOutCubic,
+            switchOutCurve: Curves.easeInOutCubic,
+            transitionBuilder: (Widget child, Animation<double> animation) {
+              final slideAnimation = Tween<Offset>(
+                begin: const Offset(0.2, 0),
+                end: Offset.zero,
+              ).animate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeInOutCubic,
+                ),
+              );
+
+              return FadeTransition(
+                opacity: animation,
+                child: SlideTransition(position: slideAnimation, child: child),
+              );
+            },
+            child: Container(
+              key: ValueKey<int>(cubit.currentIndex),
               child: cubit.bottomScreens[cubit.currentIndex],
             ),
-            bottomNavigationBar: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                boxShadow: [BoxShadow(blurRadius: 12, color: Colors.black12)],
-              ),
-              child: SafeArea(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 15.0,
-                    vertical: 10,
-                  ),
-                  child: GNav(
-                    selectedIndex: cubit.currentIndex,
-                    onTabChange: (index) => cubit.changeBottomNav(index),
-                    rippleColor: primaryColor.withOpacity(0.2),
-                    hoverColor: primaryColor.withOpacity(0.1),
-                    haptic: true,
-                    tabBorderRadius: 12,
-                    tabShadow: [
-                      BoxShadow(
-                        color: primaryColor.withOpacity(0.15),
-                        blurRadius: 8,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                    curve: Curves.easeOutExpo,
-                    duration: const Duration(milliseconds: 600),
-                    gap: 10,
-                    color: Colors.grey[600],
-                    activeColor: primaryColor,
-                    iconSize: 24,
-                    tabBackgroundColor: activeTabColor,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
-                    ),
-                    tabs: const [
-                      GButton(icon: LineIcons.home, text: 'Home'),
-                      GButton(icon: LineIcons.heartAlt, text: 'Likes'),
-                      GButton(icon: LineIcons.shoppingCart, text: 'Cart'),
-                      GButton(icon: LineIcons.user, text: 'Profile'),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
+          ),
+          bottomNavigationBar: _buildAnimatedBottomBar(cubit),
+        );
+      },
+    );
+  }
+
+  Widget _buildAnimatedBottomBar(HomeShopCubit cubit) {
+    return Container(
+      decoration: BoxDecoration(
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey,
+            spreadRadius: 2,
+            blurRadius: 10,
+            offset: const Offset(0, -3),
+          ),
+        ],
       ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          height: 70,
+          color: Colors.white,
+          child: BottomNavigationBar(
+            currentIndex: cubit.currentIndex,
+            onTap: (index) {
+              cubit.changeBottomNav(index);
+            },
+            selectedItemColor:  Color(0xFF8900FE),
+            unselectedItemColor: Colors.grey,
+            backgroundColor: Colors.white,
+            selectedFontSize: 12,
+            unselectedFontSize: 11,
+            type: BottomNavigationBarType.fixed,
+            items: [
+              _buildBottomBarItem(
+                activeIcon: Icons.home,
+                inactiveIcon: Icons.home_outlined,
+                label: 'Home',
+                isActive: cubit.currentIndex == 0,
+              ),
+              _buildBottomBarItem(
+                activeIcon: Icons.category,
+                inactiveIcon: Icons.category_outlined,
+                label: 'Categories',
+                isActive: cubit.currentIndex == 1,
+              ),
+              _buildBottomBarItem(
+                activeIcon: Icons.delivery_dining,
+                inactiveIcon: Icons.delivery_dining_outlined,
+                label: 'deliver',
+                isActive: cubit.currentIndex == 2,
+              ),
+              _buildBottomBarItem(
+                activeIcon: Icons.shopping_cart,
+                inactiveIcon: Icons.shopping_cart_outlined,
+                label: 'Cart',
+                isActive: cubit.currentIndex == 3,
+              ),
+              _buildBottomBarItem(
+                activeIcon: Icons.person,
+                inactiveIcon: Icons.person_outline,
+                label: 'Profile',
+                isActive: cubit.currentIndex == 4,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  BottomNavigationBarItem _buildBottomBarItem({
+    required IconData activeIcon,
+    required IconData inactiveIcon,
+    required String label,
+    required bool isActive,
+  }) {
+    return BottomNavigationBarItem(
+      icon: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        transform: Matrix4.identity()..scale(isActive ? 1.2 : 1.0),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return ScaleTransition(
+              scale: animation,
+              child: FadeTransition(opacity: animation, child: child),
+            );
+          },
+          child:
+              isActive
+                  ? Icon(activeIcon, size: 28, key: ValueKey('active_$label'))
+                  : Icon(
+                    inactiveIcon,
+                    size: 24,
+                    key: ValueKey('inactive_$label'),
+                  ),
+        ),
+      ),
+      label: label,
     );
   }
 }
