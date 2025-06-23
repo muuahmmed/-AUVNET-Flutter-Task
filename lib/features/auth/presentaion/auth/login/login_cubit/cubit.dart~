@@ -40,6 +40,17 @@ class LoginCubit extends Cubit<LoginStates> {
     }
   }
 
+  Future<void> logout() async {
+    try {
+      await _googleSignIn.signOut(); // Sign out from Google too
+      await client.auth.signOut();
+      await CacheHelper.removeData(key: 'onBoarding');
+      emit(LogoutSuccessState());
+    } catch (e) {
+      emit(LoginErrorState('Logout failed: ${e.toString()}'));
+    }
+  }
+
   Future<void> forgotPassword({required String email}) async {
     emit(ForgotPasswordLoadingState());
     try {

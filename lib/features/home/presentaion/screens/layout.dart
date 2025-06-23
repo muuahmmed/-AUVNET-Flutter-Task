@@ -1,5 +1,8 @@
+import 'package:dynamic_height_list_view/dynamic_height_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LayoutScreen extends StatefulWidget {
   const LayoutScreen({super.key});
@@ -60,52 +63,61 @@ class _LayoutScreenState extends State<LayoutScreen>
     super.dispose();
   }
 
+  final user = Supabase.instance.client.auth.currentUser;
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
     final isPortrait =
         MediaQuery.of(context).orientation == Orientation.portrait;
 
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: ScaleTransition(
-            scale: _scaleAnimation,
-            child: Column(
-              children: [
-                // Animated Header
-                _buildAnimatedHeader(context),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.white,
+        systemNavigationBarIconBrightness: Brightness.dark,
+      ),
+      child: Scaffold(
+        body: SingleChildScrollView(
+          child: FadeTransition(
+            opacity: _fadeAnimation,
+            child: ScaleTransition(
+              scale: _scaleAnimation,
+              child: Column(
+                children: [
+                  // Animated Header
+                  _buildAnimatedHeader(context),
 
-                Padding(
-                  padding: EdgeInsets.all(screenSize.width * 0.02),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: screenSize.height * 0.01),
-                      _buildSectionTitle('Services:', screenSize),
-                      SizedBox(height: screenSize.height * 0.01),
-                      serviceBuilder(context, screenSize),
-                      SizedBox(height: screenSize.height * 0.01),
-                      _buildAnimatedOfferBanner(screenSize),
-                      SizedBox(height: screenSize.height * 0.02),
-                      _buildSectionTitle('Shortcuts:', screenSize),
-                      SizedBox(height: screenSize.height * 0.01),
-                      _buildAnimatedShortcuts(screenSize),
-                      SizedBox(height: screenSize.height * 0.01),
-                      _buildAnimatedBanners(screenSize, isPortrait),
-                      SizedBox(height: screenSize.height * 0.01),
-                      _buildSectionTitle(
-                        'Popular Restaurants nearby',
-                        screenSize,
-                      ),
-                      SizedBox(height: screenSize.height * 0.01),
-                      _buildAnimatedRestaurants(screenSize),
-                      SizedBox(height: screenSize.height * 0.02),
-                    ],
+                  Padding(
+                    padding: EdgeInsets.all(screenSize.width * 0.02),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: screenSize.height * 0.01),
+                        _buildSectionTitle('Services:', screenSize),
+                        SizedBox(height: screenSize.height * 0.01),
+                        serviceBuilder(context, screenSize),
+                        SizedBox(height: screenSize.height * 0.01),
+                        _buildAnimatedOfferBanner(screenSize),
+                        SizedBox(height: screenSize.height * 0.02),
+                        _buildSectionTitle('Shortcuts:', screenSize),
+                        SizedBox(height: screenSize.height * 0.01),
+                        _buildAnimatedShortcuts(screenSize),
+                        SizedBox(height: screenSize.height * 0.01),
+                        _buildAnimatedBanners(screenSize, isPortrait),
+                        SizedBox(height: screenSize.height * 0.01),
+                        _buildSectionTitle(
+                          'Popular Restaurants nearby',
+                          screenSize,
+                        ),
+                        SizedBox(height: screenSize.height * 0.01),
+                        _buildAnimatedRestaurants(screenSize),
+                        SizedBox(height: screenSize.height * 0.02),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -182,7 +194,7 @@ class _LayoutScreenState extends State<LayoutScreen>
                       ),
                     ],
                   ),
-                  child: const Text('Hi Hepa!'),
+                  child: Text('Hi ${user?.userMetadata?['name']} !'),
                 ),
                 const Spacer(),
                 AnimatedRotation(
@@ -219,70 +231,68 @@ class _LayoutScreenState extends State<LayoutScreen>
       },
     ];
 
-    return SizedBox(
-      height: screenSize.height * 0.18,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        itemCount: items.length,
-        separatorBuilder: (_, __) => SizedBox(width: screenSize.width * 0.04),
-        itemBuilder: (context, index) {
-          final item = items[index];
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: screenSize.width * 0.25,
-                height: screenSize.width * 0.25,
-                decoration: BoxDecoration(
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Image.asset(
-                    item['image']!,
-                    width: screenSize.width * 0.25,
-                    height: screenSize.width * 0.18,
-                    fit: BoxFit.contain,
-                  ),
+    return DynamicHeightListView(
+      items: List.generate(items.length, (index) => index),
+
+      scrollDirection: ScrollDirection.horizontal,
+
+      physics: const BouncingScrollPhysics(),
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: screenSize.width * 0.25,
+              height: screenSize.width * 0.25,
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                child: Image.asset(
+                  item['image']!,
+                  width: screenSize.width * 0.25,
+                  height: screenSize.width * 0.18,
+                  fit: BoxFit.contain,
                 ),
               ),
+            ),
 
-              SizedBox(height: screenSize.height * 0.001),
+            SizedBox(height: screenSize.height * 0.001),
 
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenSize.width * 0.03,
-                  vertical: screenSize.height * 0.005,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF8900FE),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  item['badge']!,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: screenSize.width * 0.03,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: screenSize.width * 0.03,
+                vertical: screenSize.height * 0.005,
               ),
-
-              SizedBox(height: screenSize.height * 0.003),
-
-              Text(
-                item['text']!,
+              decoration: BoxDecoration(
+                color: const Color(0xFF8900FE),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                item['badge']!,
                 style: TextStyle(
-                  fontSize: screenSize.width * 0.035,
-                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                  fontSize: screenSize.width * 0.03,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ],
-          );
-        },
-      ),
+            ),
+
+            SizedBox(height: screenSize.height * 0.003),
+
+            Text(
+              item['text']!,
+              style: TextStyle(
+                fontSize: screenSize.width * 0.035,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -290,9 +300,9 @@ class _LayoutScreenState extends State<LayoutScreen>
   Widget _buildAnimatedOfferBanner(Size screenSize) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 500),
+      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
       curve: Curves.easeInOut,
       width: double.infinity,
-      height: screenSize.height * 0.1,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(15),
@@ -354,7 +364,7 @@ class _LayoutScreenState extends State<LayoutScreen>
               ),
             ),
           ),
-          SizedBox(width: screenSize.width * 0.03),
+          SizedBox(width: 5),
           Expanded(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

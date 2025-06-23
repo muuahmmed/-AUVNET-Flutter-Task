@@ -20,7 +20,7 @@ class HomeShopCubit extends Cubit<HomeShopStates> {
   double deliveryFee = 5.0;
 
   final List<Widget> bottomScreens = [
-    const LayoutScreen(),
+     LayoutScreen(),
     const CategoriesScreen(),
     const DeliveryScreen(),
     const CartScreen(),

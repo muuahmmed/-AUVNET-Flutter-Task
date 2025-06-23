@@ -19,7 +19,7 @@ class RegisterCubit extends Cubit<RegisterStates> {
     emit(RegisterLoadingState());
 
     try {
-      // Check if email already exists in the 'users' table
+      // Check if email is already used
       final existingUser =
           await client.from('users').select().eq('email', email).maybeSingle();
 
@@ -36,7 +36,7 @@ class RegisterCubit extends Cubit<RegisterStates> {
 
       if (response.user != null) {
         await CacheHelper.saveData(key: 'onBoarding', value: true);
-        await addUserData(id: response.user!.id, name: name, email: email);
+        await addUserData(name: name, email: email);
         emit(RegisterSuccessState());
       } else {
         emit(RegisterErrorState('Registration failed'));
@@ -49,30 +49,31 @@ class RegisterCubit extends Cubit<RegisterStates> {
   }
 
   Future<void> addUserData({
-    required String id,
     required String name,
     required String email,
   }) async {
     emit(UserDataLoadingLoginState('Adding user data...'));
-
     try {
-      // Check if user data already exists
-      final alreadyExists =
-          await client.from('users').select().eq('id', id).maybeSingle();
+      final userId = Supabase.instance.client.auth.currentUser?.id;
+      if (user != null) {
+        final alreadyExists =
+            await client.from('users').select().eq('id', user.id).maybeSingle();
 
-      if (alreadyExists != null) {
-        emit(UserDataErrorLoginState('User data already exists'));
-        return;
+        if (alreadyExists != null) {
+          emit(UserDataErrorLoginState('User data already exists'));
+          return;
+        }
+
+        await client.from('users').insert({
+          'id': user.id,
+          'name': name,
+          'email': email,
+        });
+
+        emit(UserDataAddedLoginState('User data added successfully'));
+      } else {
+        emit(UserDataErrorLoginState('User not authenticated'));
       }
-
-      // Insert user data into Supabase
-      await client.from('users').insert({
-        'id': id,
-        'name': name,
-        'email': email,
-      });
-
-      emit(UserDataAddedLoginState('User data added successfully'));
     } catch (e) {
       emit(UserDataErrorLoginState('Failed to add user data: ${e.toString()}'));
     }

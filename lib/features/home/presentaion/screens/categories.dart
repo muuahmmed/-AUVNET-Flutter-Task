@@ -1,3 +1,4 @@
+import 'package:dynamic_height_list_view/dynamic_height_view.dart';
 import 'package:flutter/material.dart';
 
 class CategoriesScreen extends StatelessWidget {
@@ -29,15 +30,13 @@ class CategoriesScreen extends StatelessWidget {
       ),
       body: Padding(
         padding: EdgeInsets.all(screenSize.width * 0.03),
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: isPortrait ? 2 : 4,
-            crossAxisSpacing: screenSize.width * 0.03,
-            mainAxisSpacing: screenSize.width * 0.03,
-            childAspectRatio: 1.2,
-          ),
+        child:DynamicHeightGridView(
+          crossAxisCount: isPortrait ? 2 : 4,
+          crossAxisSpacing: screenSize.width * 0.03,
+          mainAxisSpacing: screenSize.width * 0.03,
+
           itemCount: categories.length,
-          itemBuilder: (context, index) {
+          builder: (context, index) {
             final category = categories[index];
             return Card(
               elevation: 4,
@@ -64,6 +63,7 @@ class CategoriesScreen extends StatelessWidget {
                         fontSize: screenSize.width * 0.045,
                         fontWeight: FontWeight.bold,
                         color: theme.textTheme.bodyLarge?.color,
+
                       ),
                     ),
                   ],

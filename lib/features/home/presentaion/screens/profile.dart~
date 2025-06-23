@@ -41,7 +41,7 @@ class ProfileScreen extends StatelessWidget {
                           ? NetworkImage(
                             user!.userMetadata!['avatar_url'] as String,
                           )
-                          : const AssetImage('assets/images/default_avatar.png')
+                          : const AssetImage('assets/splash_screen/nawel.png')
                               as ImageProvider,
                 ),
                 Container(

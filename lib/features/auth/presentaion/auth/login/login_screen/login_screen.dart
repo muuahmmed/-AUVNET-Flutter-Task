@@ -317,7 +317,65 @@ class _LoginScreenState extends State<LoginScreen>
                                       },
                                     ),
                                   ),
-                                  const SizedBox(height: 20),
+                                  Row(
+                                    children: [
+                                      const Spacer(),
+                                      TextButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return AlertDialog(
+                                                title: const Text(
+                                                  'Forgot Password?',
+                                                ),
+                                                content: const Text(
+                                                  'Enter your email to reset your password.',
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(context);
+                                                    },
+                                                    child: const Text('Cancel'),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      final email =
+                                                          _emailController.text
+                                                              .trim();
+                                                      if (email.isEmpty) {
+                                                        showToast(
+                                                          text:
+                                                              'Please enter your email',
+                                                          state:
+                                                              ToastStates.ERROR,
+                                                        );
+                                                        return;
+                                                      }
+                                                      LoginCubit.get(
+                                                        context,
+                                                      ).forgotPassword(
+                                                        email: email,
+                                                      );
+                                                    },
+                                                    child: const Text('Send'),
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
+                                        child: const Text(
+                                          'Forgot Password?',
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
 
                                   // Login Button with enhanced animation
                                   AnimatedBuilder(

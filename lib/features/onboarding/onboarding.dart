@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../core/utils/cache/cache_helper.dart';
-import '../../core/utils/components/components.dart';
 import '../auth/presentaion/auth/login/login_screen/login_screen.dart';
 
 class BoardingModel {

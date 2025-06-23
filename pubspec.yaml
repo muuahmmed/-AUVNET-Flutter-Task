@@ -41,6 +41,7 @@ dependencies:
   google_nav_bar:
   supabase_flutter:
   google_sign_in:
+  dynamic_height_list_view:
   flutter:
     sdk: flutter
 

@@ -55,6 +55,7 @@ Color chooseToastColor(ToastStates state) {
   }
 }
 void signOut(context) {
+  CacheHelper.removeData(key: 'onBoarding');
   CacheHelper.removeData(key: 'token').then((value) {
     if (value) {
       navigateAndFinish(context, const LoginScreen());

@@ -397,7 +397,8 @@ class _RegisterScreenState extends State<RegisterScreen>
     required String? Function(String?) validator,
     TextInputType? keyboardType,
     TextInputAction? textInputAction,
-  }) {
+  })
+  {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
 
@@ -431,7 +432,8 @@ class _RegisterScreenState extends State<RegisterScreen>
     required VoidCallback onPressed,
     required String? Function(String?) validator,
     TextInputAction? textInputAction,
-  }) {
+  })
+  {
     final theme = Theme.of(context);
     final primaryColor = theme.primaryColor;
 

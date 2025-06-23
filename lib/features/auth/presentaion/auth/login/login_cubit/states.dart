@@ -25,9 +25,9 @@ class ForgotPasswordSuccessState extends LoginStates {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ForgotPasswordSuccessState &&
-              runtimeType == other.runtimeType &&
-              email == other.email;
+      other is ForgotPasswordSuccessState &&
+          runtimeType == other.runtimeType &&
+          email == other.email;
 
   @override
   int get hashCode => email.hashCode;
@@ -40,9 +40,9 @@ class ForgotPasswordErrorState extends LoginStates {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          other is ForgotPasswordErrorState &&
-              runtimeType == other.runtimeType &&
-              error == other.error;
+      other is ForgotPasswordErrorState &&
+          runtimeType == other.runtimeType &&
+          error == other.error;
 
   @override
   int get hashCode => error.hashCode;

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'core/utils/api_services/api_sevices.dart';
@@ -7,12 +8,15 @@ import 'core/utils/observer/bloc_observer.dart';
 import 'features/auth/presentaion/auth/login/login_cubit/cubit.dart';
 import 'features/auth/presentaion/auth/register/register_bloc/cubit.dart';
 import 'features/home/presentaion/home_cubit/home_cubit.dart';
-import 'features/onboarding/onboarding.dart';
 import 'features/splash/splash_screen.dart'; // Import your splash screen
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
 
+    systemNavigationBarColor: Colors.white, // navigation bar color
+    statusBarColor: Colors.white, // status bar color
+  ));
   await Supabase.initialize(
     url: ApiServices.baseUrl,
     anonKey: ApiServices.anon,
@@ -41,7 +45,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: const OnBoardingScreen(), // Always start with splash screen
+        home: const LogoScreen(), // Always start with splash screen
       ),
     );
   }
